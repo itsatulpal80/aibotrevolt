@@ -1,0 +1,197 @@
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+  position: relative;
+}
+
+.App-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  font-size: 20px;
+  color: black;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  letter-spacing: 1px;
+}
+
+.toggle-switch {
+  position: relative;
+}
+
+.toggle-switch input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-switch label {
+  display: block;
+  width: 50px;
+  height: 25px;
+  background-color: #ccc;
+  border-radius: 25px;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.3s;
+}
+
+.toggle-switch label::after {
+  content: '';
+  position: absolute;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background-color: white;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+}
+
+.toggle-switch input[type="checkbox"]:checked + label {
+  background-color: #007bff;
+}
+
+.toggle-switch input[type="checkbox"]:checked + label::after {
+  transform: translateX(25px);
+}
+
+.App-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.chat-section {
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.robot-section {
+  margin-bottom: 40px;
+}
+
+.robot-icon {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.robot-head {
+  width: 60px;
+  height: 60px;
+  background-color: #28a745;
+  border-radius: 50%;
+  position: relative;
+  margin: 0 auto 10px;
+}
+
+.robot-head::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #007bff;
+  border-radius: 50%;
+  top: 20px;
+  left: 15px;
+}
+
+.robot-head::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #007bff;
+  border-radius: 50%;
+  top: 20px;
+  right: 15px;
+}
+
+.robot-head::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 6px;
+  background-color: #333;
+  border-radius: 3px;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.robot-wheel {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(45deg, #6f42c1, #007bff);
+  border-radius: 50%;
+  margin: 0 auto;
+  position: relative;
+}
+
+.robot-wheel::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.chat-title {
+  font-size: 32px;
+  font-weight: bold;
+  color: black;
+  margin: 0;
+}
+
+.chat-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin: 10px 0 0 0;
+  font-weight: normal;
+}
+
+.connection-status {
+  color: #666;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.App-footer {
+  padding: 20px;
+  text-align: right;
+}
+
+.system-message {
+  color: #999;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.system-message div:first-child {
+  font-size: 14px;
+  margin-bottom: 2px;
+}
