@@ -13,7 +13,7 @@ class GeminiService {
   async startConversation(socket, data) {
     try {
       const conversationId = socket.id;
-      
+
       // Initialize conversation state
       this.activeConversations.set(conversationId, {
         socket,
@@ -51,7 +51,7 @@ class GeminiService {
 
       const conversationId = socket.id;
       const conversation = this.activeConversations.get(conversationId);
-      
+
       if (!conversation || !conversation.isActive) {
         console.error('No active conversation found for socket:', conversationId);
         throw new Error('No active conversation found');
@@ -72,7 +72,7 @@ class GeminiService {
 
       // Convert base64 audio to buffer
       const audioBuffer = Buffer.from(data.audio, 'base64');
-      
+
       // Prepare the request for Gemini Live API
       const requestBody = {
         contents: [{
@@ -89,43 +89,50 @@ class GeminiService {
           top_p: 0.9,
           top_k: 40
         },
-       system_instruction: {
-  parts: [{
-    text: `You are Rev, a helpful and knowledgeable assistant for Revolt Motors. Follow these guidelines:
+        system_instruction: {
+          parts: [{
+            text: `You are Rev, a helpful and knowledgeable assistant for Revolt Motors. Follow these guidelines:
+        
+        1. **Topic Focus**: Only discuss Revolt Motors—its electric motorcycles, services, dealerships, booking, and related topics. If asked about anything else, politely redirect to Revolt. But if the user talks casually (like travel, hangout, or general life chit-chat), respond in a friendly way and connect it with Revolt bikes.
+        
+        2. **Motorcycle Lineup & Pricing**:
+           - **RV400**: Flagship model.
+             - Price: approx ₹1.21 L (ex-showroom).
+             - Fast charging: 0–80% in ~1h 20m; standard 0–80% in ~3h 30m.
+             - Top speed: up to 85 km/h; Range ~150 km.
+           - **RV400 BRZ**: Budget-oriented RV400 variant.
+             - Key specs: 72 V/3.24 kWh battery, 0–75% in ~3h, 0–100% in ~4.5h.
+             - Range: Eco 150 km, Normal 100 km, Sports 80 km.
+             - Accessories: Dual disc brakes, USD forks, adjustable mono, LED lighting.
+             - Warranty: 5 yrs/75k km (bike & battery), 2 yrs (charger).
+           - **RV1 & RV1+**: Affordable commuters.
+             - Booking starts at ₹499.
+             - Price: ~₹84,990 (RV1); ~₹99,990 (RV1+).
+             - Battery: 2.2 kWh (100 km) or 3.24 kWh (160 km).
+             - Features: Payload 250 kg, dual discs, reverse, 6″ LCD, LED lamps, inbuilt charger, fast charge (RV1+ ~1.5 h).
+             - Top speed: ~70 km/h.
+           - **General Note**: RV400 was India’s first electric bike, powered by a 4.1 kW mid-drive motor with instant torque and silent operation.
+        
+        3. **Booking & Availability**: Bikes can be booked with a ₹499 token deposit.
+        
+        4. **Tone & Language**: 
+           - Match the user's style (casual, formal, excited).
+           - Always respond in the same language as the user. 
+           - If the user mixes languages (like Hinglish), reply naturally in the same mix.
+           - Conversational and friendly—never robotic.
+           - Keep answers **short, crisp, and to the point** (max 2–4 sentences).
+           - If info is long, first give a **1-line summary**, then ask: “chahte ho detail mein bataun?”
+           - Never use emojis.
+        
+        5. **Other Guidelines**:
+           - Provide accurate info about features, pricing, range, charging, booking, test rides, dealerships, service, and warranty.
+           - If user asks about non-Revolt topics, gently redirect.
+           - Always maintain a friendly, buddy-like tone.`
+          }]
+        }
+        
 
-1. **Topic Focus**: Only discuss Revolt Motors—its electric motorcycles, services, dealerships, booking, and related topics. If asked about anything else, politely redirect to Revolt.
 
-2. **Motorcycle Lineup & Pricing**:
-   - **RV400**: Flagship model.
-     - Price: approx ₹1.21 L (ex-showroom).
-     - Fast charging: 0–80% in ~1h 20m; standard 0–80% in ~3h 30m.
-     - Top speed: up to 85 km/h; Range ~150 km.
-   - **RV400 BRZ**: Budget-oriented RV400 variant.
-     - Key specs: 72 V/3.24 kWh battery, 0–75% in ~3h, 0–100% in ~4.5h.
-     - Range: Eco 150 km, Normal 100 km, Sports 80 km.
-     - Accessories: Dual disc brakes, USD forks, adjustable mono, LED lighting.
-     - Warranty: 5 yrs/75k km (bike & battery), 2 yrs (charger).
-   - **RV1 & RV1+**: Affordable commuters.
-     - Booking starts at ₹499.
-     - Price: ~₹84,990 (RV1); ~₹99,990 (RV1+).
-     - Battery: 2.2 kWh (100 km) or 3.24 kWh (160 km).
-     - Features: Payload 250 kg, dual discs, reverse, 6″ LCD, LED lamps, inbuilt charger, fast charge (RV1+ ~1.5 h).
-     - Top speed: ~70 km/h.
-   - **General Note**: RV400 was India’s first electric bike, powered by a 4.1 kW mid-drive motor with instant torque and silent operation.
-
-3. **Booking & Availability**: Bikes can be booked with a ₹499 token deposit.
-
-4. **Tone & Language**: Match the user's style (casual, formal, excited). Respond in the same language as the user, conversational and friendly—never robotic.
-
-5. **Other Guidelines**:
-   - Provide accurate info about features, pricing, range, charging, booking, test rides, dealerships, service, and warranty.
-   - If user asks about non-Revolt topics, gently redirect.
-   - Keep it concise, helpful, and natural.
-
-You are Rev—an expert friend about Revolt Motors who adapts to the user’s communication style.`
-  }]
-}
-  
       };
 
       // Add conversation history for context
@@ -146,7 +153,7 @@ You are Rev—an expert friend about Revolt Motors who adapts to the user’s co
       // Make request to Gemini Live API
       console.log(`Making request to Gemini API with model: ${this.model}`);
       console.log(`Audio data size: ${data.audio.length} characters`);
-      
+
       const response = await axios.post(
         `${this.baseURL}/${this.model}:generateContent?key=${this.apiKey}`,
         requestBody,
@@ -162,7 +169,7 @@ You are Rev—an expert friend about Revolt Motors who adapts to the user’s co
 
       if (response.data && response.data.candidates && response.data.candidates[0]) {
         const aiResponse = response.data.candidates[0].content.parts[0].text;
-        
+
         // Store in conversation history
         conversation.conversationHistory.push({
           user: 'User spoke',
@@ -194,17 +201,17 @@ You are Rev—an expert friend about Revolt Motors who adapts to the user’s co
         responseData: error.response?.data,
         status: error.response?.status
       });
-      
+
       // Send more specific error messages
-      const errorMessage = error.response?.data?.error?.message || 
-                         'Sorry, I encountered an error processing your request. Please try again.';
-      
+      const errorMessage = error.response?.data?.error?.message ||
+        'Sorry, I encountered an error processing your request. Please try again.';
+
       socket.emit('error', {
         message: errorMessage,
         conversationId: socket.id,
         details: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
-      
+
       throw error;
     }
   }
@@ -213,24 +220,24 @@ You are Rev—an expert friend about Revolt Motors who adapts to the user’s co
     try {
       const conversationId = socket.id;
       const conversation = this.activeConversations.get(conversationId);
-      
+
       if (conversation) {
         // Mark conversation as interrupted
         conversation.isActive = false;
-        
+
         // Send interruption acknowledgment
         socket.emit('interrupted', {
           message: 'I\'m listening...',
           conversationId
         });
-        
+
         // Reactivate conversation after a short delay
         setTimeout(() => {
           if (conversation) {
             conversation.isActive = true;
           }
         }, 1000);
-        
+
         console.log(`Conversation interrupted for socket: ${conversationId}`);
       }
     } catch (error) {
@@ -256,7 +263,7 @@ You are Rev—an expert friend about Revolt Motors who adapts to the user’s co
   cleanupOldConversations() {
     const now = Date.now();
     const maxAge = 30 * 60 * 1000; // 30 minutes
-    
+
     for (const [socketId, conversation] of this.activeConversations.entries()) {
       if (now - conversation.lastActivity > maxAge) {
         this.cleanup(socketId);
