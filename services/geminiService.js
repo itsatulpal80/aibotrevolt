@@ -39,15 +39,36 @@ class GeminiService {
 
   async processAudio(socket, data) {
     try {
+      // Validate audio data
+      if (!data || !data.audio) {
+        console.error('Invalid audio data received');
+        throw new Error('Invalid audio data');
+      }
+
+      // Add debug logging for audio format
+      console.log('Audio format:', data.format);
+      console.log('Audio data length:', data.audio.length);
+
       const conversationId = socket.id;
       const conversation = this.activeConversations.get(conversationId);
       
       if (!conversation || !conversation.isActive) {
+        console.error('No active conversation found for socket:', conversationId);
         throw new Error('No active conversation found');
       }
 
       // Update last activity
       conversation.lastActivity = Date.now();
+
+      // Validate audio format and size
+      if (data.audio.length < 100) {
+        console.error('Audio data too small');
+        socket.emit('error', {
+          message: 'Audio recording too short. Please try speaking for longer.',
+          conversationId
+        });
+        return;
+      }
 
       // Convert base64 audio to buffer
       const audioBuffer = Buffer.from(data.audio, 'base64');
@@ -68,27 +89,43 @@ class GeminiService {
           top_p: 0.9,
           top_k: 40
         },
-        system_instruction: {
-          parts: [{
-            text: `You are Rev, a helpful and knowledgeable assistant for Revolt Motors. Follow these guidelines:
+       system_instruction: {
+  parts: [{
+    text: `You are Rev, a helpful and knowledgeable assistant for Revolt Motors. Follow these guidelines:
 
-1. **Topic Focus**: Only provide information about Revolt Motors, their electric vehicles, services, dealerships, and related topics. If asked about other topics, politely redirect to Revolt Motors.
+1. **Topic Focus**: Only discuss Revolt Motors—its electric motorcycles, services, dealerships, booking, and related topics. If asked about anything else, politely redirect to Revolt.
 
-2. **Tone Matching**: Match the user's tone and style. If they use casual language like "kya hal ha", respond similarly. If they're formal, be formal. If they're excited, be enthusiastic.
+2. **Motorcycle Lineup & Pricing**:
+   - **RV400**: Flagship model.
+     - Price: approx ₹1.21 L (ex-showroom).
+     - Fast charging: 0–80% in ~1h 20m; standard 0–80% in ~3h 30m.
+     - Top speed: up to 85 km/h; Range ~150 km.
+   - **RV400 BRZ**: Budget-oriented RV400 variant.
+     - Key specs: 72 V/3.24 kWh battery, 0–75% in ~3h, 0–100% in ~4.5h.
+     - Range: Eco 150 km, Normal 100 km, Sports 80 km.
+     - Accessories: Dual disc brakes, USD forks, adjustable mono, LED lighting.
+     - Warranty: 5 yrs/75k km (bike & battery), 2 yrs (charger).
+   - **RV1 & RV1+**: Affordable commuters.
+     - Booking starts at ₹499.
+     - Price: ~₹84,990 (RV1); ~₹99,990 (RV1+).
+     - Battery: 2.2 kWh (100 km) or 3.24 kWh (160 km).
+     - Features: Payload 250 kg, dual discs, reverse, 6″ LCD, LED lamps, inbuilt charger, fast charge (RV1+ ~1.5 h).
+     - Top speed: ~70 km/h.
+   - **General Note**: RV400 was India’s first electric bike, powered by a 4.1 kW mid-drive motor with instant torque and silent operation.
 
-3. **Language Adaptation**: Respond in the same language the user is speaking (Hindi, English, etc.). Use natural, conversational language.
+3. **Booking & Availability**: Bikes can be booked with a ₹499 token deposit.
 
-4. **Conversation Style**: Be friendly, helpful, and engaging. Keep responses concise but informative.
+4. **Tone & Language**: Match the user's style (casual, formal, excited). Respond in the same language as the user, conversational and friendly—never robotic.
 
-5. **Vehicle Information**: Provide accurate details about Revolt Motors bikes, features, pricing, availability, and services.
+5. **Other Guidelines**:
+   - Provide accurate info about features, pricing, range, charging, booking, test rides, dealerships, service, and warranty.
+   - If user asks about non-Revolt topics, gently redirect.
+   - Keep it concise, helpful, and natural.
 
-6. **Natural Flow**: Make the conversation feel natural and human-like. Don't be robotic.
-
-7. **Greeting Responses**: If user says "kya hal ha" or similar greetings, respond warmly and ask how you can help with Revolt Motors.
-
-Remember: You're a helpful friend who knows everything about Revolt Motors and adapts to the user's communication style.`
-          }]
-        }
+You are Rev—an expert friend about Revolt Motors who adapts to the user’s communication style.`
+  }]
+}
+  
       };
 
       // Add conversation history for context
@@ -151,13 +188,21 @@ Remember: You're a helpful friend who knows everything about Revolt Motors and a
       }
 
     } catch (error) {
-      console.error('Error processing audio:', error);
-      console.error('Error details:', error.response?.data || error.message);
+      console.error('Error processing audio:', {
+        error: error.message,
+        stack: error.stack,
+        responseData: error.response?.data,
+        status: error.response?.status
+      });
       
-      // Send error response to client
+      // Send more specific error messages
+      const errorMessage = error.response?.data?.error?.message || 
+                         'Sorry, I encountered an error processing your request. Please try again.';
+      
       socket.emit('error', {
-        message: 'Sorry, I encountered an error processing your request. Please try again.',
-        conversationId: socket.id
+        message: errorMessage,
+        conversationId: socket.id,
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
       
       throw error;

@@ -1,23 +1,31 @@
-import React, { useState, useEffect, useRef } from 'react';
-import io from 'socket.io-client';
-import './App.css';
-import VoiceChat from './components/VoiceChat';
+import React, { useState, useEffect, useRef } from "react";
+import io from "socket.io-client";
+import "./App.css";
+import VoiceChat from "./components/VoiceChat";
 
 function App() {
   const [socket, setSocket] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
+  
   const [isConnected, setIsConnected] = useState(false);
+
+
+  const handleToggle = () => {
+  setDarkMode(!darkMode);
+  document.body.classList.toggle("dark-mode", !darkMode);
+};
 
   useEffect(() => {
     // Connect to Socket.IO server
-    const newSocket = io('http://localhost:5000');
-    
-    newSocket.on('connect', () => {
-      console.log('Connected to server');
+    const newSocket = io("http://localhost:5000");
+
+    newSocket.on("connect", () => {
+      console.log("Connected to server");
       setIsConnected(true);
     });
 
-    newSocket.on('disconnect', () => {
-      console.log('Disconnected from server');
+    newSocket.on("disconnect", () => {
+      console.log("Disconnected from server");
       setIsConnected(false);
     });
 
@@ -37,22 +45,24 @@ function App() {
           <span className="logo-text">REVOLT</span>
         </div>
         <div className="toggle-switch">
-          <input type="checkbox" id="toggle" />
+          <input
+            type="checkbox"
+            id="toggle"
+            checked={darkMode}
+            onChange={handleToggle}
+          />
           <label htmlFor="toggle"></label>
         </div>
       </header>
-      
+
       <main className="App-main">
         <div className="chat-section">
           <div className="robot-section">
-            <div className="robot-icon">
-              <div className="robot-head"></div>
-              <div className="robot-wheel"></div>
-            </div>
+            <div className="robot-icon">🤖</div>
             <h1 className="chat-title">Talk to Rev</h1>
             <p className="chat-subtitle">Your Revolt Motors Voice Assistant</p>
           </div>
-          
+
           {isConnected ? (
             <VoiceChat socket={socket} />
           ) : (
@@ -62,11 +72,10 @@ function App() {
           )}
         </div>
       </main>
-      
+
       <footer className="App-footer">
         <div className="system-message">
-          <div>Activate Windows</div>
-          <div>Go to Settings to activate Windows.</div>
+          <div>Made With Love Atul Pal.</div>
         </div>
       </footer>
     </div>

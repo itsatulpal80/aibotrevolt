@@ -5,6 +5,33 @@
   background-color: #f5f5f5;
   position: relative;
 }
+/* Dark Mode Theme */
+body.dark-mode {
+  background-color: #121212;
+  color: #f5f5f5;
+}
+
+body.dark-mode .App-header {
+  background-color: #1e1e1e;
+  box-shadow: 0 2px 4px rgba(255,255,255,0.1);
+}
+
+body.dark-mode .logo-text,
+body.dark-mode .chat-title,
+body.dark-mode .chat-subtitle,
+body.dark-mode .connection-status,
+body.dark-mode .system-message {
+  color: #f5f5f5;
+}
+
+body.dark-mode .toggle-switch label {
+  background-color: #666;
+}
+
+body.dark-mode .toggle-switch input[type="checkbox"]:checked + label {
+  background-color: #00c853; /* green for dark mode */
+}
+
 
 .App-header {
   display: flex;
@@ -50,6 +77,12 @@
   cursor: pointer;
   position: relative;
   transition: background-color 0.3s;
+}
+.robot-icon {
+  font-size: 3rem;   /* bigger size */
+  line-height: 1;
+  text-align: center;
+  display: inline-block;
 }
 
 .toggle-switch label::after {
@@ -194,4 +227,14 @@
 .system-message div:first-child {
   font-size: 14px;
   margin-bottom: 2px;
+}
+body.dark-mode {
+  filter: invert(1) hue-rotate(180deg);
+  background-color: #121212;
+}
+
+/* Prevent images & emojis from being inverted */
+body.dark-mode img,
+body.dark-mode .robot-icon {
+  filter: invert(1) hue-rotate(180deg);
 }
