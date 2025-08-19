@@ -6,7 +6,7 @@ class GeminiService {
     this.activeConversations = new Map();
     this.apiKey = process.env.GEMINI_API_KEY;
     // Use a working model for development
-    this.model = process.env.GEMINI_MODEL || 'gemini-2.0-flash-live-001';
+    this.model = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
     this.baseURL = 'https://generativelanguage.googleapis.com/v1beta/models';
   }
 
@@ -19,7 +19,9 @@ class GeminiService {
         socket,
         isActive: true,
         lastActivity: Date.now(),
-        conversationHistory: []
+        conversationHistory: [],
+        userTone: null,
+        userLanguage: null
       });
 
       // Send initial response
@@ -62,22 +64,47 @@ class GeminiService {
           }]
         }],
         generation_config: {
-          temperature: 0.7,
-          top_p: 0.8,
+          temperature: 0.8,
+          top_p: 0.9,
           top_k: 40
         },
         system_instruction: {
           parts: [{
-            text: `You are Rev, a helpful and knowledgeable assistant for Revolt Motors. You should:
-            1. Only provide information about Revolt Motors, their electric vehicles, services, and related topics
-            2. Be conversational and friendly in your responses
-            3. Keep responses concise but informative
-            4. If asked about topics unrelated to Revolt Motors, politely redirect the conversation back to Revolt Motors
-            5. Speak naturally and conversationally
-            6. Respond in the same language the user is speaking in`
+            text: `You are Rev, a helpful and knowledgeable assistant for Revolt Motors. Follow these guidelines:
+
+1. **Topic Focus**: Only provide information about Revolt Motors, their electric vehicles, services, dealerships, and related topics. If asked about other topics, politely redirect to Revolt Motors.
+
+2. **Tone Matching**: Match the user's tone and style. If they use casual language like "kya hal ha", respond similarly. If they're formal, be formal. If they're excited, be enthusiastic.
+
+3. **Language Adaptation**: Respond in the same language the user is speaking (Hindi, English, etc.). Use natural, conversational language.
+
+4. **Conversation Style**: Be friendly, helpful, and engaging. Keep responses concise but informative.
+
+5. **Vehicle Information**: Provide accurate details about Revolt Motors bikes, features, pricing, availability, and services.
+
+6. **Natural Flow**: Make the conversation feel natural and human-like. Don't be robotic.
+
+7. **Greeting Responses**: If user says "kya hal ha" or similar greetings, respond warmly and ask how you can help with Revolt Motors.
+
+Remember: You're a helpful friend who knows everything about Revolt Motors and adapts to the user's communication style.`
           }]
         }
       };
+
+      // Add conversation history for context
+      if (conversation.conversationHistory.length > 0) {
+        const recentHistory = conversation.conversationHistory.slice(-3); // Last 3 exchanges
+        recentHistory.forEach(exchange => {
+          requestBody.contents.unshift({
+            role: "user",
+            parts: [{ text: exchange.user }]
+          });
+          requestBody.contents.unshift({
+            role: "model",
+            parts: [{ text: exchange.assistant }]
+          });
+        });
+      }
 
       // Make request to Gemini Live API
       console.log(`Making request to Gemini API with model: ${this.model}`);
@@ -105,6 +132,11 @@ class GeminiService {
           assistant: aiResponse,
           timestamp: Date.now()
         });
+
+        // Keep only last 10 exchanges to prevent context overflow
+        if (conversation.conversationHistory.length > 10) {
+          conversation.conversationHistory = conversation.conversationHistory.slice(-10);
+        }
 
         // Send response back to client
         socket.emit('aiResponse', {
