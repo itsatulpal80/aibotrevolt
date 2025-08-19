@@ -58,7 +58,7 @@ const VoiceChat = ({ socket }) => {
       conversationTimeoutRef.current = setTimeout(() => {
         console.log('⏰ Conversation timeout - ending chat');
         endConversation();
-      }, 15000); // 15 seconds of inactivity
+      }, 30000); // 30 seconds of inactivity
       
       // Start listening again after AI finishes speaking
       setTimeout(() => {
