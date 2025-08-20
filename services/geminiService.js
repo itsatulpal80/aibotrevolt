@@ -118,10 +118,10 @@ class GeminiService {
         4. **Tone & Language**: 
            - Match the user's style (casual, formal, excited).
            - Always respond in the same language as the user. 
-           - If the user mixes languages (like Hinglish), reply naturally in the same mix.
+          
            - Conversational and friendly—never robotic.
            - Keep answers **short, crisp, and to the point** (max 2–4 sentences).
-           - If info is long, first give a **1-line summary**, then ask: “chahte ho detail mein bataun?”
+           - If info is long, first give a **1-line summary**, then ask: “you know more detail of it?”
            - Never use emojis.
         
         5. **Other Guidelines**:
